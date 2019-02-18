@@ -1,0 +1,59 @@
+Bogdan-Cristian Negru
+	325CA
+
+Descrierea claselor implementate
+''''''''''''''''''''''''''''''''
+	Clasa Branch:
+		- are rolul de a oferi un object in clasa vcs cu acces la un vector (ArrayList) de branch-uri
+		- are ca atribut un ArrayList de branch-uri si o metoda pt a adauga branch-uri, pe langa constructor si getter
+	Clasa BranchAuxiliar:
+		- aici este definita structura unui branch si anume:
+			* un obiect cu acces la un vector de commit-uri, un branch avand mai multe commit-uri
+			* un nume
+		- clasa contine getter-ele corespunzatoare si constructorul
+	Clasa Commit:
+		- similar clasei Branch ofera acces la un ArrayList de commit-uri
+	Clasa CommitAuxiliar:
+		- aici este definita structura unui commit si anume:
+			* id, generat in constructor cu metoda de generare oferita
+			* un obiect de tip FileSystemSnapshot ce reprezinta starea unui sistem de fisiere de la momentul generarii commit-ului, fiind initializat tot in constructor folosind metoda de clonare a unui sistem de fisiere, pusa
+			la dispozitie
+			* un mesaj
+	Clasa Staging:
+		- are rolul de a retine comenzile ce se afla in staging. Pt asta am folosit cate un ArrayList pt fiecare comanda de tip trackable in parte, in care pt fiecare comanda am adugat in ArrayList parametrul comenzii (numele fisierului pe care se face comanda)
+		- am implementat gettere si settere plus metodele isEmpty() care verifica daca staging-ul e gol si clear() care goleste
+		staging-ul
+	
+	Adaugari la clasa Vcs {
+		- 3 atribute:
+			* un obiect de tip staging unde sunt puse operatiile trackable necommit-uite
+			* un obiect de tip Branch ce reprezinta multimea tuturor branch-uril generate
+			* un obiect de tip BranchAuxiliar ce reprezinta branch-ul curent
+		- o metoda (setStaging()) ce este apelata cand intalnim o camanda trackable si adauga comanda in staging
+		la ArrayList-ul corespunzator
+		- settere si gettere pt atributele adaugate
+		- si initializare acestora in metoda init (branch-ul default - "master" cu commit-ul "First commit")
+	} 
+	Avand aceste elemente se poate aduce in discutie logica programului, apoi dezvoltand fiecare operatie in parte.
+		Dupa ce comanda a fost citita, aceasta trece printr-un proces de de parsare, de unde in funtie de tipul comenzii se creeaza o instanta a unei comenzi in funtie de tipul acesteia, argumentele pastrate ca parametrii sunt tipul comenzii si
+		argumentele comenzii.
+		Pt a executa comanda se foloseste pattern-ul visitor, visitor-ul fiind clasa Vcs care are 2 metode supraincarcate pt visit ce apeleaza execute (metoda suprascrisa in fiecare clasa a unei operatii) pt cele 2 tipuri de comenzi (file system si vcs)
+
+	Clasa StatusOperation:
+		- In metoda suprascrisa execute ma folosesc de obiectul de tip Staging din obiectul vcs dat ca paramtetru pt a afisa elementele ce se afla in staging
+
+	Clasa BranchOperation:
+		- In execute adaug un branch nou, verificandu-i unicitatea
+	Clasa CommitOperation:
+		- In execute adaug un nou commit la branch-ul curent setand variabila de tip FileSystemSnapshot cu o clona a sistemului de fisiere de la momentul commit-ului. In prealabil verificand daca am elemente in staging
+		- golesc staging-ul
+	Clasa LogOperation:
+		- Parcurg branch-ul curent din obiectul vcs dat ca parametru si afisez pt fiecare commit id-ul si mesajul
+	Clasa CheckOutOperation:
+		- In execute verific daca comanda e pt commit-uri sau pt branch-uri
+		- Pt commit-uri caut in vectorul din clasa Commit la care am acces prin vcs pozitia commit-ului al carui nume a fost dat la comanda, ii retin pozitia, actualizez snapshot-ul activ de fisiere cu cel de la commit-ul respectiv (accesul se face prin vcs - current_branch - commit_cerut - fileSysSnapshot) si apoi sterg commit-urile care au fost sarite
+		- Pt branch-uri setez sistemul de fisiere activ (prin vcs) ca fiind cel de la ultimul commit de pe branch-ul pe care ma mut (accesul se face prin vcs - branches - commit(last) - fileSysSnapshot)
+	Clasa RollBackOperation:
+		- golesc staging-ul din vcs si actualizez sistemul activ de fisiere cu sistemul de fisiere de la momentul ultimului commit (accesat prin vcs - current_branch - commit(last) - fileSysSnapshot)
+	Clasa InvalidVcsOperation:
+		- Are scopul de a semnala o eroare in cazul in care comanda data pt o comanda de tip vcs nu este valida
