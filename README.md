@@ -1,2 +1,2 @@
 # Version-Control-System
-This is the implementation of a simulation of a Version Control System which has the role to do a minimum set of unix instructions.  
+This is the implementation of a simulation of a Version Control System which has the role to do a minimum set of unix instructions such as: create, change, delete files. Also, the application can can do vcs instructions and is able to save the current state of the file system. The purpose of this application is to be able to come back to prevoius states of the file system.
